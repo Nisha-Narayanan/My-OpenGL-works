@@ -1,0 +1,507 @@
+
+// textremappingDlg.cpp : implementation file
+//
+
+#include "stdafx.h"
+#include "textremapping.h"
+#include <GL/glew.h>
+#include "textremappingDlg.h"
+#include <fstream>
+#include <iostream>
+
+
+#ifdef _DEBUG
+#define new DEBUG_NEW
+#endif
+using namespace std;
+
+// CAboutDlg dialog used for App About
+GLuint textureID= -1;
+class CAboutDlg : public CDialog
+{
+public:
+	CAboutDlg();
+
+// Dialog Data
+	enum { IDD = IDD_ABOUTBOX };
+
+	protected:
+	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+
+// Implementation
+protected:
+	DECLARE_MESSAGE_MAP()
+};
+
+CAboutDlg::CAboutDlg() : CDialog(CAboutDlg::IDD)
+{
+}
+
+void CAboutDlg::DoDataExchange(CDataExchange* pDX)
+{
+	CDialog::DoDataExchange(pDX);
+}
+
+BEGIN_MESSAGE_MAP(CAboutDlg, CDialog)
+END_MESSAGE_MAP()
+
+
+// CtextremappingDlg dialog
+
+
+
+
+CtextremappingDlg::CtextremappingDlg(CWnd* pParent /*=NULL*/)
+	: CDialog(CtextremappingDlg::IDD, pParent)
+{
+	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
+}
+
+void CtextremappingDlg::DoDataExchange(CDataExchange* pDX)
+{
+	CDialog::DoDataExchange(pDX);
+}
+
+BEGIN_MESSAGE_MAP(CtextremappingDlg, CDialog)
+	ON_WM_SYSCOMMAND()
+	ON_WM_PAINT()
+	ON_WM_QUERYDRAGICON()
+	ON_WM_SIZE()
+	//}}AFX_MSG_MAP
+	ON_BN_CLICKED(IDOK, &CtextremappingDlg::OnBnClickedOk)
+	ON_BN_CLICKED(IDC_BUTTON1, &CtextremappingDlg::OnBnClickedButton1)
+	ON_BN_CLICKED(IDC_BUTTON2, &CtextremappingDlg::OnBnClickedButton2)
+	ON_BN_CLICKED(IDC_BUTTON3, &CtextremappingDlg::OnBnClickedButton3)
+	ON_BN_CLICKED(IDC_CHECK1, &CtextremappingDlg::OnBnClickedCheck1)
+	ON_BN_CLICKED(IDC_CHECK2, &CtextremappingDlg::OnBnClickedCheck2)
+	ON_BN_CLICKED(IDC_CHECK3, &CtextremappingDlg::OnBnClickedCheck3)
+END_MESSAGE_MAP()
+
+
+// CtextremappingDlg message handlers
+
+BOOL CtextremappingDlg::OnInitDialog()
+{
+	CDialog::OnInitDialog();
+
+	// Add "About..." menu item to system menu.
+
+	// IDM_ABOUTBOX must be in the system command range.
+	ASSERT((IDM_ABOUTBOX & 0xFFF0) == IDM_ABOUTBOX);
+	ASSERT(IDM_ABOUTBOX < 0xF000);
+
+	CMenu* pSysMenu = GetSystemMenu(FALSE);
+	if (pSysMenu != NULL)
+	{
+		BOOL bNameValid;
+		CString strAboutMenu;
+		bNameValid = strAboutMenu.LoadString(IDS_ABOUTBOX);
+		ASSERT(bNameValid);
+		if (!strAboutMenu.IsEmpty())
+		{
+			pSysMenu->AppendMenu(MF_SEPARATOR);
+			pSysMenu->AppendMenu(MF_STRING, IDM_ABOUTBOX, strAboutMenu);
+		}
+	}
+
+	// Set the icon for this dialog.  The framework does this automatically
+	//  when the application's main window is not a dialog
+	SetIcon(m_hIcon, TRUE);			// Set big icon
+	SetIcon(m_hIcon, FALSE);		// Set small icon
+
+	// TODO: Add extra initialization here
+	x1=0;
+	y1=0;
+
+	x2=1;
+	y2=0;
+
+	x3=1;
+	y3=1;
+
+	x4=0;
+	y4=1;
+	
+	CButton *pBtn1=(CButton*)GetDlgItem(IDC_CHECK1);
+	CButton *PBtn2=(CButton*)GetDlgItem(IDC_CHECK2);
+	CButton *PBtn3=(CButton*)GetDlgItem(IDC_CHECK3);
+	pBtn1->SetCheck(1);
+	PBtn2->SetCheck(1);
+	PBtn3->SetCheck(1);
+
+	
+	Init();
+	//display();
+	return TRUE;  // return TRUE  unless you set the focus to a control
+}
+
+void CtextremappingDlg::OnSysCommand(UINT nID, LPARAM lParam)
+{
+	if ((nID & 0xFFF0) == IDM_ABOUTBOX)
+	{
+		CAboutDlg dlgAbout;
+		dlgAbout.DoModal();
+	}
+	else
+	{
+		CDialog::OnSysCommand(nID, lParam);
+	}
+}
+
+// If you add a minimize button to your dialog, you will need the code below
+//  to draw the icon.  For MFC applications using the document/view model,
+//  this is automatically done for you by the framework.
+
+void CtextremappingDlg::OnPaint()
+{
+	if (IsIconic())
+	{
+		CPaintDC dc(this); // device context for painting
+
+		SendMessage(WM_ICONERASEBKGND, reinterpret_cast<WPARAM>(dc.GetSafeHdc()), 0);
+
+		// Center icon in client rectangle
+		int cxIcon = GetSystemMetrics(SM_CXICON);
+		int cyIcon = GetSystemMetrics(SM_CYICON);
+		CRect rect;
+		GetClientRect(&rect);
+		int x = (rect.Width() - cxIcon + 1) / 2;
+		int y = (rect.Height() - cyIcon + 1) / 2;
+
+		// Draw the icon
+		dc.DrawIcon(x, y, m_hIcon);
+	}
+	else
+	{
+		CDialog::OnPaint();
+	}
+	display();
+}
+
+// The system calls this function to obtain the cursor to display while the user drags
+//  the minimized window.
+HCURSOR CtextremappingDlg::OnQueryDragIcon()
+{
+	return static_cast<HCURSOR>(m_hIcon);
+}
+
+
+void CtextremappingDlg::OnBnClickedOk()
+{
+	// TODO: Add your control notification handler code here
+	CFileDialog fdlg(1);
+	if(fdlg.DoModal()==IDOK)
+		filename=fdlg.GetPathName();
+		
+
+	load_texture();
+    /*AUX_RGBImageRec *pImage = auxDIBImageLoad( filename );
+    m_gpuTextureObj.CreateTexture( pImage->sizeX, pImage->sizeY, GL_LINEAR, GL_RGB, GL_RGBA8, GL_UNSIGNED_BYTE, GL_TEXTURE_2D );
+    m_gpuTextureObj.UpdateTexture(pImage->data);*/
+	display();	
+}
+
+void CtextremappingDlg::Init()
+{
+
+	HGLRC hRC;
+
+	hDC=::GetDC(this->GetSafeHwnd());
+
+	PIXELFORMATDESCRIPTOR pfd;
+	pfd.dwFlags=PFD_DRAW_TO_WINDOW||PFD_SUPPORT_OPENGL||PFD_DOUBLEBUFFER;
+
+	GLuint pixelformat=ChoosePixelFormat(hDC,&pfd);
+	SetPixelFormat(hDC,pixelformat,&pfd);
+
+	hRC=wglCreateContext(hDC);
+	wglMakeCurrent(hDC,hRC);
+
+	glewInit();
+	ShaderInit();
+}
+
+
+
+void CtextremappingDlg::ShaderInit()
+{
+	char *buffer = NULL;
+	GLuint nFragShader = glCreateShader(GL_FRAGMENT_SHADER);
+	 FILE* file = fopen("fragmentShader.frag","r");
+	 if ( file == NULL )
+	 {
+		 AfxMessageBox(_T("Can not open shader file!"));
+		//exit(0);
+	 }
+	 fseek( file, 0, SEEK_END );
+	 long size=ftell( file );
+	 rewind( file );
+	 if( size > 0 )
+	 {
+		 buffer = new char[size];
+		 int bytes = fread( buffer, 1, size, file );
+		 buffer[bytes] = '\0';
+		 
+	 }
+
+	 fclose(file);
+	
+	unsigned char* vertexsource=(unsigned char*)buffer;
+	const char *vertexShaderStrings[1];
+	vertexShaderStrings[0]=( char*)vertexsource;
+
+//	vertexsource = buffer;
+	/*const char* pcShrSrc = 
+		"uniform sampler2D inputTex;"
+		"uniform float brightness;"
+		"uniform int rFlag = 1;"	
+		"uniform int gFlag = 1;"
+		"uniform int bFlag = 1;"
+		"void main()"
+		"{"
+		"	gl_FragColor = texture2D( inputTex, gl_TexCoord[0].xy ) + brightness;"
+		"	if( rFlag == 0 )"
+		"	{"		
+		"		gl_FragColor.r = rFlag;"
+		"	}"
+		"	if( gFlag == 0 )"
+		"	{"		
+		"		gl_FragColor.g = gFlag;"
+		"	}"
+		"	if( bFlag == 0 )"
+		"	{"		
+		"		gl_FragColor.b = bFlag;"
+		"	}"
+		
+		"}";*/
+
+	/*int nLength = strlen( pcShrSrc );
+	glShaderSource( nFragShader, 1, &pcShrSrc, &nLength );*/
+	//int nLength = strlen( vertexsource );
+	glShaderSource( nFragShader, 1, vertexShaderStrings ,NULL);
+	
+	//glShaderSource( nFragShader, 1, buffer, NULL );
+	glCompileShader( nFragShader  );
+	GLint nStatus = GL_FALSE;
+	glGetShaderiv( nFragShader, GL_COMPILE_STATUS, &nStatus );
+	if( GL_FALSE == nStatus )
+	{
+		AfxMessageBox( _T( "Shader compilation error" ));
+	}
+	m_nProgram = glCreateProgram();
+	glAttachShader( m_nProgram, nFragShader );
+	glLinkProgram( m_nProgram );
+	GLint nLinkStatus = GL_FALSE;
+	glGetProgramiv( m_nProgram, GL_LINK_STATUS, &nLinkStatus );
+
+	if( GL_FALSE == nLinkStatus )
+	{
+		AfxMessageBox( _T( "Program link error" ));
+	}
+}
+void CtextremappingDlg::display()
+{
+	
+	glClearColor(0.0,0.0,0.0,0.0);
+	int nClearFlag = GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT;
+	glClear(nClearFlag);
+	
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+
+	glUseProgram(m_nProgram);
+	GLuint nInputTex = glGetUniformLocation( m_nProgram, "inputTex"  );
+	glUniform1i( nInputTex, 0 );
+	
+
+	if( -1 != textureID )
+	{
+		glActiveTexture( GL_TEXTURE0 );
+		glBindTexture(GL_TEXTURE_2D,textureID);
+		glEnable(GL_TEXTURE_2D);
+
+		glBegin(GL_QUADS);
+		{
+
+			glTexCoord2i(x1, y1 );
+			glVertex2f( -0.9f, -0.5f );
+
+			glTexCoord2i(x2, y2 );
+			glVertex2f( 0.0f, -0.5f );
+
+			glTexCoord2i(x3, y3 );
+			glVertex2f( 0.0f, 0.9f );
+
+			glTexCoord2i(x4, y4 );
+			glVertex2f( -0.9f, 0.9f );
+
+
+		}
+		glEnd();
+	}
+	glUseProgram(0);
+
+	SwapBuffers(hDC);
+}
+
+
+int g_Cx = 0, g_Cy = 0;
+
+void CtextremappingDlg::OnSize(UINT nType,int cx, int cy)
+{
+	g_Cx = cx;
+	g_Cy = cy;
+	glViewport(0,0,cx ,cy);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+}
+
+void CtextremappingDlg::load_texture()
+{
+	glGenFramebuffersEXT(1, &m_frameBufferObject);
+	glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, m_frameBufferObject);
+
+	AUX_RGBImageRec *pimage=auxDIBImageLoad(filename);
+	if(pimage!=NULL)
+	{
+		glFinish();
+		glGenTextures(1,&textureID);
+		glBindTexture(GL_TEXTURE_2D,textureID);
+		glFinish();
+		
+		glTexParameteri( GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+		glTexParameteri( GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+		//glTexParameteri( GL_TEXTURE_2D,GL_TEXTURE_WRAP_S , GL_REPEAT );
+		//glTexParameteri( GL_TEXTURE_2D,GL_TEXTURE_WRAP_T , GL_REPEAT );
+		image_height=pimage->sizeX;
+		image_width=pimage->sizeY;
+		//for(int i=0;i< image_height*image_width*3;i++)
+		{
+		//	pimage->data[i] +=2;
+
+		}
+	
+		glTexImage2D(GL_TEXTURE_2D,0,GL_RGB8,pimage->sizeX,pimage->sizeY,0,GL_RGB,GL_UNSIGNED_BYTE,pimage->data);
+
+		GLuint textureID3;
+		//glGenTextures(1,&textureID3);
+		//glBindTexture(GL_TEXTURE_2D,textureID3);
+
+		glTexParameteri( GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+		glTexParameteri( GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+		glTexImage2D(GL_TEXTURE_2D,0,GL_RGB8,pimage->sizeX,pimage->sizeY,0,GL_RGB,GL_UNSIGNED_BYTE,pimage->data);
+
+		glFramebufferTexture2DEXT( GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, textureID, 0 );
+		glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, 0);
+		glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, m_frameBufferObject);
+		glViewport( 0, 0, pimage->sizeX, pimage->sizeY );
+		glFinish();
+		glEnable(GL_TEXTURE_2D);
+		//glBindTexture(GL_TEXTURE_2D,textureID3);
+		glBegin(GL_QUADS);
+		glTexCoord2i( 0, 0 );
+		glVertex2f( -0.5, -0.5 );
+		glTexCoord2i( 0, 1 );
+		glVertex2f( -0.5, 0.5 );
+		glTexCoord2i( 1, 1 );
+		glVertex2f( 0.5, 0.5 );
+		glTexCoord2i( 1, 0 );
+		glVertex2f( 0.5, -0.5 );
+		glEnd();
+		
+		glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, 0);
+		glViewport(0,0,g_Cx ,g_Cy);
+	}
+	if(pimage)
+	{
+
+		if( pimage->data )
+			free( pimage->data );
+		free( pimage );
+
+	}
+
+}
+void CtextremappingDlg::OnBnClickedButton1()
+{
+	// TODO: Add your control notification handler code here
+	y1=!y1;
+	y2=!y2;	
+	y3=!y3;
+	y4=!y4;
+	display();
+
+}
+
+void CtextremappingDlg::OnBnClickedButton2()
+{
+	// TODO: Add your control notification handler code here
+	x1=!x1;
+	x2=!x2;
+	x3=!x3;
+	x4=!x4;
+	display();
+}
+
+void CtextremappingDlg::OnBnClickedButton3()
+{
+	// TODO: Add your control notification handler code here
+//	GLubyte *buffer=new GLubyte[image_width*image_height*3];
+//	glEnable(GL_TEXTURE_2D );
+//	glBindTexture(GL_TEXTURE_2D,textureID);
+//	glGetTexImage(GL_TEXTURE_2D,0,GL_RGB,GL_UNSIGNED_BYTE,buffer);
+//  glEnable(GL_TEXTURE_2D );
+//	for(int i=0;i<(image_height*image_width*3);i++)
+//	{
+//		if(buffer[i]<255)
+//		buffer[i] += 1;
+//		else
+//			buffer[i]+=0;
+//	}
+//	glTexImage2D(GL_TEXTURE_2D,0,GL_RGB8,image_width,image_height,0,GL_RGB,GL_UNSIGNED_BYTE, buffer);
+//  glTexSubImage2D(GL_TEXTURE_2D,0,0,0,image_width,image_height,GL_RGB,GL_UNSIGNED_BYTE,buffer);
+//	glFinish();
+//	free(buffer);
+
+	static float fbrightness  = 0.0f;
+	fbrightness += 0.05;
+	glUseProgram( m_nProgram );
+	GLuint nParamBrightness = glGetUniformLocation( m_nProgram, "brightness" );
+	glUniform1f( nParamBrightness, fbrightness );
+	display();
+}
+
+void CtextremappingDlg::OnBnClickedCheck1()
+{
+	glUseProgram( m_nProgram );
+	GLuint nParamColor = glGetUniformLocation( m_nProgram, "rFlag"  );
+	CButton* pBtn = (CButton*)GetDlgItem( IDC_CHECK1 );
+	glUniform1i( nParamColor,pBtn->GetCheck());
+	display();
+	
+}
+
+void CtextremappingDlg::OnBnClickedCheck2()
+{
+	// TODO: Add your control notification handler code here
+	glUseProgram( m_nProgram );
+	GLuint nParamColor = glGetUniformLocation( m_nProgram, "gFlag"  );
+	CButton* pBtn = (CButton*)GetDlgItem( IDC_CHECK2 );
+	glUniform1i( nParamColor, pBtn->GetCheck() );
+	display();
+
+}
+
+
+void CtextremappingDlg::OnBnClickedCheck3()
+{
+	// TODO: Add your control notification handler code here
+
+	glUseProgram( m_nProgram );
+	GLuint nParamColor = glGetUniformLocation( m_nProgram, "bFlag"  );
+	CButton* pBtn = (CButton*)GetDlgItem( IDC_CHECK3 );
+	glUniform1i( nParamColor, pBtn->GetCheck() );
+	display();
+}
